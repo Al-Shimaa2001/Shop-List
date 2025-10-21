@@ -20,7 +20,7 @@ const saveItems = () => {
   })
   newItem.value = ''
 }
-const done = ref(false)
+// const done = ref(false)
 </script>
 
 <template>
