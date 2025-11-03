@@ -1,24 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 const header = ref('Shop list')
-const shoppingList = ref([
-  { id: 1, priority: 'high', item: 'apple' },
-  // { id: 2, priority: 'low', item: 'orange' },
-  // { id: 3, priority: 'high', item: 'milk' },
-  // { id: 4, priority: 'low', item: 'coff' },
-  // { id: 5, priority: 'low', item: 'juice' },
-  // { id: 6, priority: 'high', item: 'read' },
-])
-
+interface ShoppingItem {
+  id: number
+  priority: string
+  item: string
+}
 const newItem = ref('')
 const newPriority = ref('')
+
+const shoppingList = ref<ShoppingItem[]>([])
+
+onMounted(() => {
+  const saveItem = localStorage.getItem('shoppingItems')
+  if (saveItem) {
+    shoppingList.value = JSON.parse(saveItem)
+  }
+})
 const saveItems = () => {
   shoppingList.value.push({
     id: shoppingList.value.length + 1,
     priority: newPriority.value,
     item: newItem.value,
   })
+  localStorage.setItem('shoppingItems', JSON.stringify(shoppingList.value))
+
   newItem.value = ''
+  newPriority.value = ''
 }
 // const done = ref(false)
 </script>
