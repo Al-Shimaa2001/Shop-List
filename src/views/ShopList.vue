@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 const header = ref('Shop list')
 interface ShoppingItem {
   id: number
@@ -10,6 +10,7 @@ const newItem = ref('')
 const newPriority = ref('')
 
 const shoppingList = ref<ShoppingItem[]>([])
+const lengthOfItem = computed(() => shoppingList.value.length)
 
 onMounted(() => {
   const saveItem = localStorage.getItem('shoppingItems')
@@ -17,18 +18,25 @@ onMounted(() => {
     shoppingList.value = JSON.parse(saveItem)
   }
 })
-const saveItems = () => {
-  shoppingList.value.push({
-    id: shoppingList.value.length + 1,
-    priority: newPriority.value,
-    item: newItem.value,
-  })
-  localStorage.setItem('shoppingItems', JSON.stringify(shoppingList.value))
 
-  newItem.value = ''
-  newPriority.value = ''
+const saveItems = () => {
+  if (shoppingList.value) {
+    shoppingList.value.push({
+      id: shoppingList.value.length + 1,
+      priority: newPriority.value,
+      item: newItem.value,
+    })
+    localStorage.setItem('shoppingItems', JSON.stringify(shoppingList.value))
+    newItem.value = ''
+    newPriority.value = ''
+  }
 }
-// const done = ref(false)
+const deleteAllItems = () => {
+  if (shoppingList.value) {
+    shoppingList.value = []
+    localStorage.setItem('shoppingItems', JSON.stringify(shoppingList.value))
+  }
+}
 </script>
 
 <template>
@@ -56,6 +64,12 @@ const saveItems = () => {
         <button class="addBtn">save Items</button>
       </section>
     </form>
+
+    <div class="itemsNumber">
+      <span>{{ lengthOfItem }} \100</span>
+      <button class="addBtn" @click="deleteAllItems()">Delete all</button>
+    </div>
+
     <ul>
       <li
         :class="priority == 'high' ? 'high' : 'low'"
@@ -99,6 +113,12 @@ section {
   width: 70%;
   box-shadow: 2px 5px 5px gray;
 }
+.itemsNumber {
+  font-weight: 800;
+  font-size: 2em;
+  display: flex;
+  justify-content: center;
+}
 li {
   list-style: none;
   padding: 0.9em;
@@ -127,6 +147,7 @@ li {
   font-weight: 700;
   letter-spacing: 1.3px;
   transition: all 0.5s ease-in-out;
+  margin: 0 10px;
 }
 .addBtn:hover {
   transform: scale(0.9);
@@ -136,7 +157,9 @@ li {
 }
 p {
   color: red;
-  font-size: 20px;
+  font-size: 2.5em;
+  font-weight: bolder;
+  text-align: center;
 }
 
 /*  animation  */
