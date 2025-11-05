@@ -5,10 +5,10 @@ interface ShoppingItem {
   id: number
   priority: string
   item: string
+  done: boolean
 }
 const newItem = ref('')
 const newPriority = ref('')
-
 const shoppingList = ref<ShoppingItem[]>([])
 const lengthOfItem = computed(() => shoppingList.value.length)
 
@@ -25,17 +25,25 @@ const saveItems = () => {
       id: shoppingList.value.length + 1,
       priority: newPriority.value,
       item: newItem.value,
+      done: false,
     })
-    localStorage.setItem('shoppingItems', JSON.stringify(shoppingList.value))
+    saveInLocalStorage()
     newItem.value = ''
     newPriority.value = ''
   }
 }
+const saveInLocalStorage = () => {
+  localStorage.setItem('shoppingItems', JSON.stringify(shoppingList.value))
+}
 const deleteAllItems = () => {
   if (shoppingList.value) {
     shoppingList.value = []
-    localStorage.setItem('shoppingItems', JSON.stringify(shoppingList.value))
+    saveInLocalStorage()
   }
+}
+const doneTask = (item: ShoppingItem & { done?: boolean }) => {
+  item.done = !item.done
+  saveInLocalStorage()
 }
 </script>
 
@@ -72,11 +80,13 @@ const deleteAllItems = () => {
 
     <ul>
       <li
-        :class="priority == 'high' ? 'high' : 'low'"
-        v-for="{ id, priority, item } in shoppingList"
-        :key="id"
+        v-for="item in shoppingList"
+        :key="item.id"
+        :class="{ high: item.priority == 'high', low: item.priority == 'low', doneTask: item.done }"
       >
-        {{ item }}
+        <span> {{ item.item }}</span>
+       
+        <button class="addBtn" @click="doneTask(item)">Done</button>
       </li>
     </ul>
     <p v-if="!shoppingList.length">No thing add yet</p>
@@ -129,6 +139,10 @@ li {
   margin: 2% 0;
   display: flex;
   justify-content: space-between;
+}
+.doneTask {
+  text-decoration: line-through;
+  background-color: gray !important;
 }
 .high {
   background-color: rgb(247, 183, 183);
